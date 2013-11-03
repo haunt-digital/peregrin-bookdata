@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+
+# NB: When testing locally, you can run this as: ruby -Ilib bin/peregrin
+
+require './lib/peregrin-bookdata.rb'
+PeregrinBookdata::Main.run(ARGV)
