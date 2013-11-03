@@ -78,9 +78,7 @@ module PeregrinBookdata
       last_component = @peregrin_book.components.size - 1
 
       @peregrin_book.components.each_with_index do |component, component_i|
-
         component_content = ''
-
         function << "      '#{component.src}':\n"
 
         last_line = component.contents.lines.count - 1
