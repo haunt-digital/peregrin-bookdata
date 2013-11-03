@@ -8,13 +8,14 @@ module PeregrinBookdata
       bookdata = self.new(peregrin_book)
     end
 
+
     def initialize(peregrin_book)
       @peregrin_book = peregrin_book
       @bookdata_js = ''
 
       assemble_javascript
 
-      puts @bookdata_js
+      @bookdata_js
     end
 
 

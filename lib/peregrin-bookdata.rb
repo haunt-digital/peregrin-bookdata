@@ -13,7 +13,6 @@ module PeregrinBookdata
       $opts = Trollop::options do
         banner PeregrinBookdata::Main.usage
         opt :output, "destination for js file"
-        opt :static_assets_path, "folder to place static assets in"
       end
 
       file = args.shift
