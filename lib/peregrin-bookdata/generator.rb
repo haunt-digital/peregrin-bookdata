@@ -6,6 +6,7 @@ module PeregrinBookdata
 
     def self.generate(peregrin_book)
       bookdata = self.new(peregrin_book)
+      bookdata.bookdata_js
     end
 
 
@@ -14,8 +15,6 @@ module PeregrinBookdata
       @bookdata_js = ''
 
       assemble_javascript
-
-      @bookdata_js
     end
 
 

@@ -10,9 +10,9 @@ module PeregrinBookdata
 
   class Main
     def self.run(args)
-      $opts = Trollop::options do
+      opts = Trollop::options do
         banner PeregrinBookdata::Main.usage
-        opt :output, "destination for js file"
+        opt :output, "destination for js file", :type => :string
       end
 
       file = args.shift
@@ -25,8 +25,16 @@ module PeregrinBookdata
         Trollop::die "#{file} is not a file"
       end
 
-      PeregrinBookdata::Bookdata.generate PeregrinBookdata::Parser.open(file)
+      book = PeregrinBookdata::Parser.open(file)
+      bookdata = PeregrinBookdata::Bookdata.generate(book)
+
+      if opts[:output]
+        File.open(opts[:output], 'w') { |file| file.write(bookdata) }
+      else
+        puts bookdata
+      end
     end
+
 
     def self.usage
       <<-EOS
