@@ -58,7 +58,7 @@ module PeregrinBookdata
 
       @peregrin_book.chapters.each_with_index do |chapter, i|
         function << "      {\n"
-        function << "        title: '#{chapter.title}'\n"
+        function << "        title: '#{chapter.title}',\n"
         function << "        src: '#{chapter.src}'\n"
         function << "      }"
         function << "," if i < last
