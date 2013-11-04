@@ -78,12 +78,13 @@ module PeregrinBookdata
       last_component = @peregrin_book.components.size - 1
 
       @peregrin_book.components.each_with_index do |component, component_i|
-        component_content = ''
+
         function << "      '#{component.src}':\n"
 
         last_line = component.contents.lines.count - 1
 
-        component.contents.each_line.with_index do |line, line_i|
+        component.contents.lines.each_with_index do |line, line_i|
+          component_content = ''
           normalized_line = replace_image_asset_urls(line.chomp, component.src)
 
           component_content << "        '#{normalized_line}'"
