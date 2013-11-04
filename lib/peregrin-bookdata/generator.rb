@@ -85,9 +85,8 @@ module PeregrinBookdata
 
         component.contents.lines.each_with_index do |line, line_i|
           component_content = ''
-          normalized_line = replace_image_asset_urls(line.chomp, component.src)
 
-          component_content << "        '#{normalized_line}'"
+          component_content << "        '#{line.chomp}'"
           component_content << " +\n" if line_i < last_line
 
           function << component_content
@@ -119,7 +118,7 @@ module PeregrinBookdata
       function << "  }\n"
     end
 
-
+    # Monocle is smart enough that this isn't necessary.
     def replace_image_asset_urls(line, source_path)
       match = /src="([^"]+)/.match(line)
 
