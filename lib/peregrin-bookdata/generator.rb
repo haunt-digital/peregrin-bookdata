@@ -2,7 +2,7 @@ module PeregrinBookdata
   # https://github.com/joseph/Monocle/wiki/Book-data-object
   class Bookdata
     attr_accessor :peregrin_book, :bookdata_js
-
+    DEFAULT_COVER_COMPONENT_TITLE = 'peregrin-bookdata-generated-cover.xhtml'
 
     def self.generate(peregrin_book)
       bookdata = self.new(peregrin_book)
@@ -31,12 +31,16 @@ module PeregrinBookdata
     end
 
 
-    def get_components_function
+    def get_components_function(cover = true)
       function = ""
       function << "  getComponents: function () {\n"
       function << "    return [\n"
 
       last = @peregrin_book.components.size - 1
+
+      if cover
+        function << "      '#{DEFAULT_COVER_COMPONENT_TITLE}',\n"
+      end
 
       @peregrin_book.components.each_with_index do |component, i|
         function << "      '#{component.src}'"
@@ -70,15 +74,18 @@ module PeregrinBookdata
     end
 
 
-    def get_component_function
+    def get_component_function(cover = true)
       function = ""
       function << "  getComponent: function (componentId) {\n"
       function << "    return {\n"
 
+      if cover
+        function << generate_cover_component
+      end
+
       last_component = @peregrin_book.components.size - 1
 
       @peregrin_book.components.each_with_index do |component, component_i|
-
         function << "      '#{component.src}':\n"
 
         last_line = component.contents.lines.count - 1
@@ -98,6 +105,22 @@ module PeregrinBookdata
 
       function << "    }[componentId];\n"
       function << "  },\n"
+    end
+
+
+    def generate_cover_component
+      cover_image = @peregrin_book.cover.src
+
+      cover_component_string = "      '#{DEFAULT_COVER_COMPONENT_TITLE}':\n"
+      cover_component_string << "        '<?xml version=\"1.0\" encoding=\"utf-8\"?>' +\n"
+      cover_component_string << "        '<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\"' +\n"
+      cover_component_string << "        '  \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">' +\n"
+      cover_component_string << "        '<html xmlns=\"http://www.w3.org/1999/xhtml\">' +\n"
+      cover_component_string << "        '<meta content=\"text/html; charset=UTF-8\" />' +\n"
+      cover_component_string << "        '</head>' +\n"
+      cover_component_string << "        '<body>' +\n"
+      cover_component_string << "        '<div><img src=\"#{cover_image}\" style=\"width: 100%; height: 100%;\" /></div></body></html>',\n\n"
+      cover_component_string
     end
 
 
