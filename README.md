@@ -8,7 +8,7 @@ A wrapper for [peregrin](https://github.com/joseph/peregrin) which generates a [
 
 <pre>
   Usage:
-         peregrin-bookdata [options] <filename>
+         peregrin-bookdata book.epub [options] <filename>
 
   where [options] are:
            --output, -o <s>:   destination for js file and unzipped assets
