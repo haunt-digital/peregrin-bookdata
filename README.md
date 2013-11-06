@@ -8,22 +8,21 @@ A wrapper for [peregrin](https://github.com/joseph/peregrin) which generates a [
 
 ### Help
 
-<pre>
-$ ruby bin/peregrin-bookdata -h
+    $ ruby bin/peregrin-bookdata -h
 
-  peregin-bookdata convets ebooks into monocle bookData javascript objects.
+    peregin-bookdata convets ebooks into monocle bookData javascript objects.
 
-  Usage:
+    Usage:
          peregrin-bookdata [options] <filename>
 
-  where [options] are:
+      where [options] are:
            --output, -o <s>:   destination for js file and unzipped assets
                                (default: output)
          --filename, -f <s>:   name of bookdata js file (default: bookdata.js)
     --cover, --no-cover, -c:   include cover image as a page (default: true)
                  --help, -h:   Show this message
 
-</pre>
+
 
 It is expected that all static assets from your .epub are provided by your webserver in the same structure as the original epub, at the same level as Monocle.
 
