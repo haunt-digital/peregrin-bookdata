@@ -4,11 +4,11 @@ A wrapper for [peregrin](https://github.com/joseph/peregrin) which generates a [
 
 ## Usage
 
-    $ ruby bin/peregrin-bookdata book.epub
+    $ ruby bin/peregrin-bookdata some-book.epub
 
 <pre>
   Usage:
-         peregrin-bookdata book.epub [options] <filename>
+         peregrin-bookdata SOURCE.epub [options] <filename>
 
   where [options] are:
            --output, -o <s>:   destination for js file and unzipped assets

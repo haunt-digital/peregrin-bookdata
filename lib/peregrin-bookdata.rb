@@ -34,7 +34,7 @@ module PeregrinBookdata
 peregin-bookdata convets ebooks into monocle bookData javascript objects.
 
 Usage:
-       peregrin-bookdata book.epub [options] <filename>
+       peregrin-bookdata SOURCE.epub [options] <filename>
 
 where [options] are:
         EOS
