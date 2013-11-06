@@ -4,13 +4,14 @@ module PeregrinBookdata
     attr_accessor :peregrin_book, :bookdata_js
     DEFAULT_COVER_COMPONENT_TITLE = 'peregrin-bookdata-generated-cover.xhtml'
 
-    def self.generate(peregrin_book)
-      bookdata = self.new(peregrin_book)
+    def self.generate(peregrin_book, opts)
+      bookdata = self.new(peregrin_book, opts)
       bookdata.bookdata_js
     end
 
 
-    def initialize(peregrin_book)
+    def initialize(peregrin_book, opts)
+      @opts = opts
       @peregrin_book = peregrin_book
       @bookdata_js = ''
 
@@ -38,7 +39,7 @@ module PeregrinBookdata
 
       last = @peregrin_book.components.size - 1
 
-      if cover
+      if @opts[:cover]
         function << "      '#{DEFAULT_COVER_COMPONENT_TITLE}',\n"
       end
 
@@ -79,7 +80,7 @@ module PeregrinBookdata
       function << "  getComponent: function (componentId) {\n"
       function << "    return {\n"
 
-      if cover
+      if @opts[:cover]
         function << generate_cover_component
       end
 

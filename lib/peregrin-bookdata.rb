@@ -41,6 +41,7 @@ where [options] are:
 
         opt :output, "destination for js file and unzipped assets", :default => 'output'
         opt :filename, "name of bookdata js file", :default => 'bookdata.js'
+        opt :cover, "include cover image as a page", :default => true
       end
 
       @epub_file = @raw_args.shift
@@ -52,7 +53,7 @@ where [options] are:
 
     def convert
       book = PeregrinBookdata::Parser.open(@epub_file)
-      @bookdata = PeregrinBookdata::Bookdata.generate(book)
+      @bookdata = PeregrinBookdata::Bookdata.generate(book, @opts)
     end
 
 
