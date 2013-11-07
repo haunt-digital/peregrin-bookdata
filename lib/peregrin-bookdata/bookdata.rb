@@ -52,13 +52,39 @@ module PeregrinBookdata
         new_components << combine_component_contents(pair)
       end
 
+
       @peregrin_book.components = new_components
+
+      fix_for_cover_image_url
+    end
+
+
+    def fix_for_cover_image_url
+      require 'pathname'
+      path = Pathname.new(@peregrin_book.components.first.src)
+      i = -1
+      puts path.ascend {|v| i+=1 }
+
+      str = ''
+      i.times { str = '../' + str }
+
+      cover_path = @peregrin_book.cover.src
+      new_cover_path = str + cover_path
+      @peregrin_book.components.first.contents.gsub!(cover_path, new_cover_path)
+      puts @peregrin_book.components.first.contents
     end
 
 
     def combine_component_contents(pair)
       new_component = OpenStruct.new
-      new_component.src = pair.first.src
+
+      if pair.length > 1
+        src = pair[1].src
+      else
+        src = pair.first.src
+      end
+
+      new_component.src = src
 
       new_contents = double_iframe_component_body(pair)
 
@@ -71,19 +97,45 @@ module PeregrinBookdata
     def double_iframe_component_body(pair)
       require 'cgi'
 
+      resize_styles = <<-EOS
+<style>
+  img, video, object {
+  max-height: 95% !important;
+  height: auto !important;
+}
+body * {
+  max-width: 100% !important;
+}
+</style>
+      EOS
+
+      resize_body_tag = <<-EOS
+<body style="margin: 0px; padding: 0px; height: 100%; width: 100%; position: absolute; -webkit-column-width: 464px; -webkit-column-gap: 20px; -webkit-transform: translateX(0px);">
+      EOS
+
       new_contents = <<-EOS
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
   "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <meta content="text/html; charset=UTF-8" />
-</head>
+<style>
+  img, video, object {
+  max-height: 95% !important;
+  height: auto !important;
+}
+body * {
+  max-width: 100% !important;
+}
+</style>
 <body>
       EOS
 
       pair.each do |component|
         new_contents << "<iframe height=\"100%\" width=\"48%\" style=\"display:inline;\" scrolling=\"no\" frameborder=\"0\" srcdoc=\""
-        single_line_contents = component.contents.gsub('\n', '')
+        resizable_contents = component.contents.gsub('</head>', "#{resize_styles}\n</head>")
+        resizable_contents = resizable_contents.gsub('<body>', resize_body_tag)
+        single_line_contents = resizable_contents.gsub('\n', '')
         new_contents << CGI.escape_html(single_line_contents)
         new_contents<< "\"></iframe>\n"
       end
