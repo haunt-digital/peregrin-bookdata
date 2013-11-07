@@ -48,7 +48,7 @@ where [options] are:
       @epub_file = @raw_args.shift
 
       Trollop::die "need to supply a filename" unless @epub_file
-      Trollop::die "#{file} is not a file" unless File.exist?(@epub_file)
+      Trollop::die "#{@epub_file} is not a file" unless File.exist?(@epub_file)
     end
 
 
