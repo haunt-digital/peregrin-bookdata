@@ -1,7 +1,11 @@
 module PeregrinBookdata
   # https://github.com/joseph/Monocle/wiki/Book-data-object
+
   class Bookdata
+    require 'ostruct'
+
     attr_accessor :peregrin_book, :bookdata_js
+
     DEFAULT_COVER_COMPONENT_TITLE = 'peregrin-bookdata-generated-cover.xhtml'
 
     def self.generate(peregrin_book, opts)
@@ -14,6 +18,14 @@ module PeregrinBookdata
       @opts = opts
       @peregrin_book = peregrin_book
       @bookdata_js = ''
+
+      if @opts[:cover]
+        generate_cover_component
+      end
+
+      if @opts[:double]
+        restructure_for_double_page_layout
+      end
 
       assemble_javascript
     end
@@ -32,16 +44,60 @@ module PeregrinBookdata
     end
 
 
-    def get_components_function(cover = true)
+    def restructure_for_double_page_layout
+      components = @peregrin_book.components
+      new_components = []
+
+      components.each_slice(2) do |pair|
+        new_components << combine_component_contents(pair)
+      end
+
+      @peregrin_book.components = new_components
+    end
+
+
+    def combine_component_contents(pair)
+      new_component = OpenStruct.new
+      new_component.src = pair.first.src
+
+      new_contents = double_iframe_component_body(pair)
+
+      new_component.contents = new_contents
+
+      new_component
+    end
+
+
+    def double_iframe_component_body(pair)
+      require 'cgi'
+
+      new_contents = <<-EOS
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<meta content="text/html; charset=UTF-8" />
+</head>
+<body>
+      EOS
+
+      pair.each do |component|
+        new_contents << "<iframe height=\"100%\" width=\"48%\" style=\"display:inline;\" scrolling=\"no\" frameborder=\"0\" srcdoc=\""
+        single_line_contents = component.contents.gsub('\n', '')
+        new_contents << CGI.escape_html(single_line_contents)
+        new_contents<< "\"></iframe>\n"
+      end
+
+      new_contents << '</body></html>'
+    end
+
+
+    def get_components_function
       function = ""
       function << "  getComponents: function () {\n"
       function << "    return [\n"
 
       last = @peregrin_book.components.size - 1
-
-      if @opts[:cover]
-        function << "      '#{DEFAULT_COVER_COMPONENT_TITLE}',\n"
-      end
 
       @peregrin_book.components.each_with_index do |component, i|
         function << "      '#{component.src}'"
@@ -75,28 +131,33 @@ module PeregrinBookdata
     end
 
 
-    def get_component_function(cover = true)
+    def get_component_function
       function = ""
       function << "  getComponent: function (componentId) {\n"
       function << "    return {\n"
 
-      if @opts[:cover]
-        function << generate_cover_component
-      end
+      function << component_ingest
 
-      last_component = @peregrin_book.components.size - 1
+      function << "    }[componentId];\n"
+      function << "  },\n"
+    end
 
-      @peregrin_book.components.each_with_index do |component, component_i|
-        function << "      '#{component.src}':\n"
 
+    def component_ingest
+      function = ''
+
+      components = @peregrin_book.components
+
+      last_component = components.size - 1
+
+      components.each_with_index do |component, component_i|
         last_line = component.contents.lines.count - 1
 
+        function << "      '#{component.src}':\n"
+
         component.contents.lines.each_with_index do |line, line_i|
-          component_content = ''
-
-          component_content << "        '#{line.chomp}'"
+          component_content = "        '#{line.chomp}'"
           component_content << " +\n" if line_i < last_line
-
           function << component_content
         end
 
@@ -104,24 +165,28 @@ module PeregrinBookdata
         function << "\n\n"
       end
 
-      function << "    }[componentId];\n"
-      function << "  },\n"
+      function
     end
 
 
     def generate_cover_component
       cover_image = @peregrin_book.cover.src
 
-      cover_component_string = "      '#{DEFAULT_COVER_COMPONENT_TITLE}':\n"
-      cover_component_string << "        '<?xml version=\"1.0\" encoding=\"utf-8\"?>' +\n"
-      cover_component_string << "        '<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\"' +\n"
-      cover_component_string << "        '  \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">' +\n"
-      cover_component_string << "        '<html xmlns=\"http://www.w3.org/1999/xhtml\">' +\n"
-      cover_component_string << "        '<meta content=\"text/html; charset=UTF-8\" />' +\n"
-      cover_component_string << "        '</head>' +\n"
-      cover_component_string << "        '<body>' +\n"
-      cover_component_string << "        '<div><img src=\"#{cover_image}\" style=\"width: 100%; height: 100%;\" /></div></body></html>',\n\n"
-      cover_component_string
+      cover = OpenStruct.new
+
+      cover.src = DEFAULT_COVER_COMPONENT_TITLE
+      cover.contents = <<-EOS
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<meta content="text/html; charset=UTF-8" />
+</head><body>
+<div><img src="#{cover_image}" style="width: 100%; height: 100%;" /></div>
+</body></html>
+      EOS
+
+      @peregrin_book.components.unshift(cover)
     end
 
 
@@ -140,23 +205,6 @@ module PeregrinBookdata
 
       function << "    }[key];\n"
       function << "  }\n"
-    end
-
-    # Monocle is smart enough that this isn't necessary.
-    def replace_image_asset_urls(line, source_path)
-      match = /src="([^"]+)/.match(line)
-
-      if match
-        match.captures.each do |capture|
-          asset_path = ::Pathname.new(capture)
-          source_path = ::Pathname.new(source_path)
-          real_asset_path = source_path.dirname + asset_path
-
-          line.gsub!(/#{Regexp.escape(capture)}/, real_asset_path.to_s)
-        end
-      end
-
-      line
     end
   end
 end

@@ -30,7 +30,7 @@ module PeregrinBookdata
 
     def parse_options
       @opts = Trollop::options do
-        banner       <<-EOS
+        banner <<-EOS
 peregin-bookdata convets ebooks into monocle bookData javascript objects.
 
 Usage:
@@ -41,7 +41,8 @@ where [options] are:
 
         opt :output, "destination for js file and unzipped assets", :default => 'output'
         opt :filename, "name of bookdata js file", :default => 'bookdata.js'
-        opt :cover, "include cover image as a page", :default => true
+        opt :cover, "include cover image as a page", :default => false
+        opt :double, "attempt a double page layout", :default => false
       end
 
       @epub_file = @raw_args.shift

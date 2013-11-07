@@ -12,15 +12,16 @@ A wrapper for [peregrin](https://github.com/joseph/peregrin) which generates a [
 
     peregin-bookdata convets ebooks into monocle bookData javascript objects.
 
-    Usage:
-         peregrin-bookdata [options] <filename>
+        Usage:
+               peregrin-bookdata [options] <filename>
+        where [options] are:
+            --output, -o <s>:   destination for js file and unzipped assets (default:
+                                output)
+          --filename, -f <s>:   name of bookdata js file (default: bookdata.js)
+                 --cover, -c:   include cover image as a page
+                --double, -d:   attempt a double page layout
+                  --help, -h:   Show this message
 
-      where [options] are:
-           --output, -o <s>:   destination for js file and unzipped assets
-                               (default: output)
-         --filename, -f <s>:   name of bookdata js file (default: bookdata.js)
-    --cover, --no-cover, -c:   include cover image as a page (default: true)
-                 --help, -h:   Show this message
 
 
 
