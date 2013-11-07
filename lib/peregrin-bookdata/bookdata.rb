@@ -2,8 +2,6 @@ module PeregrinBookdata
   # https://github.com/joseph/Monocle/wiki/Book-data-object
 
   class Bookdata
-    require 'ostruct'
-
     attr_accessor :peregrin_book, :bookdata_js
 
     DEFAULT_COVER_COMPONENT_TITLE = 'peregrin-bookdata-generated-cover.xhtml'
@@ -52,15 +50,15 @@ module PeregrinBookdata
         new_components << combine_component_contents(pair)
       end
 
-
       @peregrin_book.components = new_components
-
       fix_for_cover_image_url
     end
 
 
     def fix_for_cover_image_url
-      require 'pathname'
+      # We need to provide an offset for the cover component we generated
+      # which will work with the <base> tag proivided by monocle, based on the
+      # title of the first real page.
       path = Pathname.new(@peregrin_book.components.first.src)
       i = -1
       puts path.ascend {|v| i+=1 }
@@ -85,18 +83,13 @@ module PeregrinBookdata
       end
 
       new_component.src = src
-
       new_contents = double_iframe_component_body(pair)
-
       new_component.contents = new_contents
-
       new_component
     end
 
 
     def double_iframe_component_body(pair)
-      require 'cgi'
-
       resize_styles = <<-EOS
 <style>
   img, video, object {

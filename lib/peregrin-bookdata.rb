@@ -1,6 +1,8 @@
 require 'trollop'
 require 'peregrin'
 require 'pathname'
+require 'cgi'
+require 'ostruct'
 
 module PeregrinBookdata
   Dir[File.dirname(__FILE__) + '/peregrin-bookdata/*.rb'].each do |lib|
